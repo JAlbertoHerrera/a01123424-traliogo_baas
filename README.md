@@ -164,7 +164,7 @@ python ingestar_firestore.py --collection users --file users.json --dry-run
 
 ## Testing
 
-### Scripts de prueba servicios individuales
+### Scripts de prueba servicios individuales, valida que los servicios están disponibles
 
 ```bash
 python test_firestore.py    # Conectividad Firestore

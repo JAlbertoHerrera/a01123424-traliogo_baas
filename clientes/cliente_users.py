@@ -1,15 +1,32 @@
 import os, json, argparse, requests
 
-def auth_headers():
-    token = os.getenv("ID_TOKEN", "")
+def get_firebase_token(base_url, user_id="test-user-cliente"):
+    """Genera un token automáticamente"""
+    try:
+        response = requests.post(
+            f"{base_url}/auth/token",
+            json={"user_id": user_id},
+            headers={"Content-Type": "application/json"}
+        )
+        if response.status_code == 200:
+            return response.json()["token"]
+    except Exception as e:
+        print(f"Error generando token: {e}")
+    return None
+
+def auth_headers(base_url):
+    token = os.getenv("ID_TOKEN", "") or get_firebase_token(base_url)
     h = {"Content-Type": "application/json"}
     if token:
         h["Authorization"] = f"Bearer {token}"
+        print(f"Usando autenticación con token")
+    else:
+        print("Sin autenticación")
     return h
 
 
 def main(base):
-    H = auth_headers()
+    H = auth_headers(base)
 
     # LIST (por email opcional)
     r = requests.get(f"{base}/users?email=adriana@example.com&limit=5", headers=H)

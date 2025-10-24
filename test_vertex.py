@@ -1,12 +1,14 @@
 import os
+from dotenv import load_dotenv
 from google.cloud import aiplatform
 from vertexai import init as vertex_init
 from vertexai.generative_models import GenerativeModel
 
 def main():
+    load_dotenv()
     project_id = os.getenv("GCLOUD_PROJECT", "trailogo-dev")
     location = os.getenv("VERTEX_LOCATION", "us-central1")
-    model_name = os.getenv("VERTEX_MODEL", "gemini-1.5-flash")
+    model_name = os.getenv("VERTEX_MODEL", "")
     
     print(f"Probando Vertex AI...")
     print(f"   Project: {project_id}")
@@ -24,7 +26,7 @@ def main():
         print(f"Modelo {model_name} cargado")
         
         # Generar contenido
-        prompt = "¿Qué es TralioGo y para qué sirve una app de traducción?"
+        prompt = "¿cuál es la capital de francia?"
         print(f"Enviando prompt: {prompt}")
         
         response = model.generate_content(prompt)

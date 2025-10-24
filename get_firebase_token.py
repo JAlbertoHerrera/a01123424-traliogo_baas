@@ -16,7 +16,8 @@ def get_custom_token(project_id: str, user_id: str = "test-user-123"):
     try:
         # Inicializar Firebase Admin (usa Application Default Credentials)
         if not firebase_admin._apps:
-            firebase_admin.initialize_app(options={'projectId': project_id})
+            cred = credentials.Certificate("firebase-service-account.json")
+            firebase_admin.initialize_app(cred)
         
         # Crear custom token
         custom_token = auth.create_custom_token(user_id)

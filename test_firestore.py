@@ -2,7 +2,7 @@ from google.cloud import firestore
 
 def main():
     print("Conectando a Firestore...")
-    db = firestore.Client()
+    db = firestore.Client(project="trailogo-dev")
 
     doc_ref = db.collection("traliogo_test").document("demo")
     doc_ref.set({

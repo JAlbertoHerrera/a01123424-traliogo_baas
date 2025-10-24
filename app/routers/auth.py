@@ -4,6 +4,9 @@ import firebase_admin
 from firebase_admin import auth, credentials
 import os
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter()
 
@@ -26,16 +29,22 @@ async def generate_test_token(request: LoginRequest):
         # Inicializar Firebase Admin si no está inicializado
         if not firebase_admin._apps:
             project_id = os.getenv('GCLOUD_PROJECT', 'trailogo-dev')
-            firebase_admin.initialize_app(options={'projectId': project_id})
+            credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+            
+            if credentials_path:
+                # Normalizar ruta para Windows
+                credentials_path = os.path.normpath(credentials_path)
+                
+                if os.path.exists(credentials_path):
+                    cred = credentials.Certificate(credentials_path)
+                    firebase_admin.initialize_app(cred, options={'projectId': project_id})
+                else:
+                    raise Exception(f"Archivo de credenciales no encontrado: {credentials_path}")
+            else:
+                raise Exception("GOOGLE_APPLICATION_CREDENTIALS no está configurado")
         
-        # Crear custom token
-        custom_token = auth.create_custom_token(
-            request.user_id,
-            additional_claims={
-                'email': request.email,
-                'role': 'test_user'
-            }
-        )
+        # Crear custom token (sin claims por simplicidad)
+        custom_token = auth.create_custom_token(request.user_id)
         
         return TokenResponse(
             token=custom_token.decode('utf-8'),
@@ -57,7 +66,19 @@ async def auth_health():
     try:
         if not firebase_admin._apps:
             project_id = os.getenv('GCLOUD_PROJECT', 'trailogo-dev')
-            firebase_admin.initialize_app(options={'projectId': project_id})
+            credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+            
+            if credentials_path:
+                # Normalizar ruta para Windows
+                credentials_path = os.path.normpath(credentials_path)
+                
+                if os.path.exists(credentials_path):
+                    cred = credentials.Certificate(credentials_path)
+                    firebase_admin.initialize_app(cred, options={'projectId': project_id})
+                else:
+                    raise Exception(f"Archivo de credenciales no encontrado: {credentials_path}")
+            else:
+                raise Exception("GOOGLE_APPLICATION_CREDENTIALS no está configurado")
         
         # Intentar crear un token de prueba
         test_token = auth.create_custom_token("health-check")
